@@ -132,11 +132,12 @@ async def my_background_task():
 counter = 0
 @tasks.loop(seconds=24*60*60)
 async def background2():
-    await commonprojects.get_prices()
+    update = await commonprojects.get_prices()
     #await asyncio.sleep(20) #24*60*60)
     global counter 
     counter+=1
     print(counter)
+    await client.get_channel(903768737608499220).send(update)
 
 
 background2.start()
