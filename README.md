@@ -16,7 +16,7 @@ Steps:
 <ul>8. git remove -v</ul>
 <ul>9. git push origin master</ul>
 
-10. Iterate on code 
+10. Iterate on code and create reqs doc using pipreqs . --force 
 
 11. set up vm using sudo apt-get install, install python, install screen, etc.
 
