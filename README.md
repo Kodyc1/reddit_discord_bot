@@ -20,8 +20,9 @@ Steps:
 
 11. set up vm using sudo apt-get install, install python, install screen, etc.
 
+- sudo apt-get update
 - sudo apt-get install screen
-
+- sudo apt-get install git
 - pip3 install requirements.txt
 
 - python3 -m pip3 install --upgrade pip
