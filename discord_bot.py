@@ -77,7 +77,9 @@ async def my_background_task():
     ''' live stream new posts to discord '''
     subreddit = await reddit.subreddit("frugalmalefashion")
     async for submission in subreddit.stream.submissions(skip_existing=True):
-        if submission.link_flair_text == "[Deal/Sale]" or "common projects achilles" in submission.title:
+        if submission.link_flair_text == "[Deal/Sale]" and \
+            ("common projects" in submission.title or \
+                "achilles low" in submission.title):
             print(submission.title)
             timestamp = datetime.fromtimestamp(submission.created_utc)
             pacific = timestamp.astimezone(timezone("US/Pacific"))
