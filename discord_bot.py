@@ -75,45 +75,19 @@ async def my_background_task():
     )
 
     ''' live stream new posts to discord '''
-    # subreddit = await reddit.subreddit("frugalmalefashion")
-    # async for submission in subreddit.stream.submissions(skip_existing=True):
-    #     if submission.link_flair_text == "[Deal/Sale]" or "common projects achilles" in submission.title:
-    #         print(submission.title)
-    #         timestamp = datetime.fromtimestamp(submission.created_utc)
-    #         pacific = timestamp.astimezone(timezone("US/Pacific"))
-    #         print("Posted on:", pacific.strftime('%m/%d/%Y %H:%M:%S %Z\n'))
-
-    #         # if submission is an achilles low sale, message/ping user in channel
-    #         channel_id = client.get_channel(903768737608499220)
-    #         bladexer = "<@220296856800854018>"
-
-    #         # put reddit post into embed object
-    #         embed = discord.Embed(
-    #             title = submission.title,
-    #             url = submission.shortlink,
-    #             timestamp = pacific
-    #         )
-
-    #         alert_message = "<@220296856800854018> New sale post: " + submission.shortlink + "\n"
-
-    #         # send ping into channel 
-    #         await channel_id.send(content=alert_message, embed=embed)
-            
-
-    ''' test subreddit '''
-    subreddit2 = await reddit.subreddit("pythonstreamtest")
-    async for submission in subreddit2.stream.submissions(skip_existing=True):
-        if submission.link_flair_text == "test1flair" or "common projects achilles" in submission.title:
+    subreddit = await reddit.subreddit("frugalmalefashion")
+    async for submission in subreddit.stream.submissions(skip_existing=True):
+        if submission.link_flair_text == "[Deal/Sale]" or "common projects achilles" in submission.title:
             print(submission.title)
             timestamp = datetime.fromtimestamp(submission.created_utc)
             pacific = timestamp.astimezone(timezone("US/Pacific"))
             print("Posted on:", pacific.strftime('%m/%d/%Y %H:%M:%S %Z\n'))
 
-        # if submission is an achilles low sale, message/ping user in channel
+            # if submission is an achilles low sale, message/ping user in channel
             channel_id = client.get_channel(903768737608499220)
             bladexer = "<@220296856800854018>"
 
-        # put reddit post into embed object
+            # put reddit post into embed object
             embed = discord.Embed(
                 title = submission.title,
                 url = submission.shortlink,
@@ -122,22 +96,52 @@ async def my_background_task():
 
             alert_message = "<@220296856800854018> New sale post: " + submission.shortlink + "\n"
 
-        # send ping into channel 
+            # send ping into channel 
             await channel_id.send(content=alert_message, embed=embed)
-    
-    await commonprojects.get_prices()
-    await asyncio.sleep(5) #24*60*60)
+            
+
+    ''' test subreddit '''
+    # subreddit2 = await reddit.subreddit("pythonstreamtest")
+    # async for submission in subreddit2.stream.submissions(skip_existing=True):
+    #     if submission.link_flair_text == "test1flair" or "common projects achilles" in submission.title:
+    #         print(submission.title)
+    #         timestamp = datetime.fromtimestamp(submission.created_utc)
+    #         pacific = timestamp.astimezone(timezone("US/Pacific"))
+    #         print("Posted on:", pacific.strftime('%m/%d/%Y %H:%M:%S %Z\n'))
+
+    #     # if submission is an achilles low sale, message/ping user in channel
+    #         channel_id = client.get_channel(903768737608499220)
+    #         bladexer = "<@220296856800854018>"
+
+    #     # put reddit post into embed object
+    #         embed = discord.Embed(
+    #             title = submission.title,
+    #             url = submission.shortlink,
+    #             timestamp = pacific
+    #         )
+
+    #         alert_message = "<@220296856800854018> New sale post: " + submission.shortlink + "\n"
+
+    #     # send ping into channel 
+    #         await channel_id.send(content=alert_message, embed=embed)
+
+
 
 
 counter = 0
 @tasks.loop(seconds=24*60*60)
 async def background2():
+    ''' Background task '''
+    await client.wait_until_ready()
+
+
     update = await commonprojects.get_prices()
     #await asyncio.sleep(20) #24*60*60)
     global counter 
     counter+=1
     print(counter)
-    await client.get_channel(903768737608499220).send(update)
+    channel_id = client.get_channel(903768737608499220)
+    await channel_id.send(update)
 
 
 background2.start()
