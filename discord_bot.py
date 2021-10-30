@@ -1,5 +1,7 @@
 #get token from config file
 from config import TOKEN 
+from config import CLIENTID
+from config import CLIENTSECRET 
 
 # discord library 
 import discord           
@@ -7,8 +9,11 @@ import discord
 # logging library 
 import logging 
 
-# refresh every 24 hours using this library 
-import datetime
+from datetime import datetime
+from pytz import timezone
+
+#import reddit
+import asyncpraw
 
 # Bot Client ID 902025855906238474
 
@@ -25,7 +30,6 @@ client = discord.Client()
 @client.event
 async def on_ready():
     print('Logged on as', client.user)
-
 
 
 ''' Manually respond to commands '''
@@ -56,15 +60,73 @@ async def on_message(message):
 ### Background Loop ###
 #######################
 
-# async def my_background_task():
-#     ''' Background task '''
-#     await client.wait_until_ready()
+async def my_background_task():
+    ''' Background task '''
+    await client.wait_until_ready()
 
-#     time = datetime.now()
+    reddit = asyncpraw.Reddit(
+        client_id=CLIENTID,
+        client_secret=CLIENTSECRET,
+        user_agent="bot user agent",
+    )
+
+    ''' live stream new posts to discord '''
+    subreddit = await reddit.subreddit("frugalmalefashion")
+    async for submission in subreddit.stream.submissions(skip_existing=True):
+        if submission.link_flair_text == "[Deal/Sale]" or "common projects achilles" in submission.title:
+            print(submission.title)
+            timestamp = datetime.fromtimestamp(submission.created_utc)
+            pacific = timestamp.astimezone(timezone("US/Pacific"))
+            print("Posted on:", pacific.strftime('%m/%d/%Y %H:%M:%S %Z\n'))
+
+            # if submission is an achilles low sale, message/ping user in channel
+            channel_id = client.get_channel(903768737608499220)
+            bladexer = "<@220296856800854018>"
+
+            # put reddit post into embed object
+            embed = discord.Embed(
+                title = submission.title,
+                url = submission.shortlink,
+                timestamp = pacific
+            )
+
+            alert_message = "<@220296856800854018> New sale post: " + submission.shortlink + "\n"
+
+            # send ping into channel 
+            await channel_id.send(content=alert_message, embed=embed)
+            
+
+    ''' test subreddit '''
+    # subreddit2 = await reddit.subreddit("pythonstreamtest")
+    # async for submission in subreddit2.stream.submissions(skip_existing=True):
+    #     if submission.link_flair_text == "test1flair" or "common projects achilles" in submission.title:
+    #         print(submission.title)
+    #         timestamp = datetime.fromtimestamp(submission.created_utc)
+    #         pacific = timestamp.astimezone(timezone("US/Pacific"))
+    #         print("Posted on:", pacific.strftime('%m/%d/%Y %H:%M:%S %Z\n'))
+
+    #     # if submission is an achilles low sale, message/ping user in channel
+    #         channel_id = client.get_channel(903768737608499220)
+    #         bladexer = "<@220296856800854018>"
+
+    #     # put reddit post into embed object
+    #         embed = discord.Embed(
+    #             title = submission.title,
+    #             url = submission.shortlink,
+    #             timestamp = pacific
+    #         )
+
+    #         alert_message = "<@220296856800854018> New sale post: " + submission.shortlink + "\n"
+
+    #     # send ping into channel 
+    #         await channel_id.send(content=alert_message, embed=embed)
+            
 
 
-# ''' run loop and listen for reddit posts '''
-# client.loop.create_task(my_background_task())
+
+
+''' run loop and listen for reddit posts '''
+client.loop.create_task(my_background_task())
 
 
 

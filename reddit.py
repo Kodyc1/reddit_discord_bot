@@ -20,15 +20,6 @@ reddit = praw.Reddit(
     user_agent="bot user agent",
 )
 
-''' async for discord bot '''
-# reddit = asyncpraw.Reddit(
-#     client_id=CLIENTID,
-#     client_secret=CLIENTSECRET,
-#     user_agent="bot user agent",
-# )
-
-# read only without username/pass, read with user/pass
-#print(reddit.read_only)
 
 ''' get subreddit, search for key word, and return newest sorted by flair '''
 subreddit = reddit.subreddit("frugalmalefashion")
@@ -50,12 +41,24 @@ for submission in subreddit.search(query='common projects achilles',
             pacific = timestamp.astimezone(timezone("US/Pacific"))
             print("Posted on:", pacific.strftime('%m/%d/%Y %H:%M:%S %Z\n'))
 
-''' live stream new posts to discord '''
 
-subreddit = reddit.subreddit("frugalmalefashion")
-for submission in subreddit.stream.submissions():
-    if submission.link_flair_text == "[Deal/Sale]": # or "common projects achilles" in submission.title:
-        print(submission.title)
-        timestamp = datetime.fromtimestamp(submission.created_utc)
-        pacific = timestamp.astimezone(timezone("US/Pacific"))
-        print("Posted on:", pacific.strftime('%m/%d/%Y %H:%M:%S %Z\n'))
+''' async for discord bot '''
+
+def stream_posts():
+    reddit = asyncpraw.Reddit(
+        client_id=CLIENTID,
+        client_secret=CLIENTSECRET,
+        user_agent="bot user agent",
+    )
+
+# read only without username/pass, read with user/pass
+#print(reddit.read_only)
+
+    ''' live stream new posts to discord '''
+    subreddit = reddit.subreddit("frugalmalefashion")
+    for submission in subreddit.stream.submissions():
+        if submission.link_flair_text == "[Deal/Sale]": # or "common projects achilles" in submission.title:
+            print(submission.title)
+            timestamp = datetime.fromtimestamp(submission.created_utc)
+            pacific = timestamp.astimezone(timezone("US/Pacific"))
+            print("Posted on:", pacific.strftime('%m/%d/%Y %H:%M:%S %Z\n'))
